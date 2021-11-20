@@ -3,9 +3,9 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 梅小湛的博客
+title: 梅小湛の博客
 subtitle: ''
-description: 'You know, living for youself.'
+description: 'You know, living for yourself.'
 keywords:
 author: Steve mei
 language: zh-Hans
@@ -111,3 +111,25 @@ search:
   field: post # 指定搜索范围，可选 post | page | all
   format: html # 指定页面内容形式，可选 html | raw (Markdown) | excerpt | more
   limit: 10000
+
+# Markdown-it config
+markdown:
+  render:
+    html: true
+    xhtmlOut: false
+    breaks: true
+    linkify: true
+    typographer: true
+    quotes: '“”‘’'
+  plugins:
+    - markdown-it-abbr
+    - markdown-it-footnote
+    - markdown-it-ins
+    - markdown-it-sub
+    - markdown-it-sup
+  anchors:
+    level: 2
+    collisionSuffix: 'v'
+    permalink: true
+    permalinkClass: 'header-anchor'
+    permalinkSymbol: '¶'
