@@ -112,24 +112,17 @@ search:
   format: html # 指定页面内容形式，可选 html | raw (Markdown) | excerpt | more
   limit: 10000
 
-# Markdown-it config
-markdown:
-  render:
+markdown_it_plus:
+    highlight: true
     html: true
-    xhtmlOut: false
+    xhtmlOut: true
     breaks: true
+    langPrefix:
     linkify: true
-    typographer: true
-    quotes: '“”‘’'
-  plugins:
-    - markdown-it-abbr
-    - markdown-it-footnote
-    - markdown-it-ins
-    - markdown-it-sub
-    - markdown-it-sup
-  anchors:
-    level: 2
-    collisionSuffix: 'v'
-    permalink: true
-    permalinkClass: 'header-anchor'
-    permalinkSymbol: '¶'
+    typographer:
+    quotes: “”‘’
+    plugins:
+        - plugin:
+            name: markdown-it-mark
+            enable: false
+
