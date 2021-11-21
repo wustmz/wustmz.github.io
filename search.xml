@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>Mac安装homebrew</title>
+      <link href="/2021/11/21/Mac%E5%AE%89%E8%A3%85homebrew/"/>
+      <url>/2021/11/21/Mac%E5%AE%89%E8%A3%85homebrew/</url>
+      
+        <content type="html"><![CDATA[<h3 id="mac安装homebrew国内用户"><a class="markdownIt-Anchor" href="#mac安装homebrew国内用户"></a> Mac安装homebrew（国内用户）</h3><blockquote><p>国内用户安装homebrew经常会因为网络问题安装失败，使用如下命令可以解决</p></blockquote><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/zsh -c &quot;$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)&quot;</span><br></pre></td></tr></table></figure><p>此行命令来源于：<a href="https://zhuanlan.zhihu.com/p/111014448">金牛肖马</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发工具 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>类加载机制详解</title>
+      <link href="/2021/11/21/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/"/>
+      <url>/2021/11/21/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/</url>
+      
+        <content type="html"><![CDATA[<h3 id="类加载运行全过程"><a class="markdownIt-Anchor" href="#类加载运行全过程"></a> 类加载运行全过程</h3><p>当我们用Java命令运行某个类的main函数启动程序时，首先需要通过类加载器把主类加载到JVM</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Math</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> initData = <span class="number">666</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> User user = <span class="keyword">new</span> User();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compute</span><span class="params">()</span> </span>&#123;  <span class="comment">//一个方法对应一块栈帧内存区域</span></span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> c = (a + b) * <span class="number">10</span>;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Math math = <span class="keyword">new</span> Math();</span><br><span class="line">        math.compute();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h4 id="通过java命令执行代码的大体流程如下"><a class="markdownIt-Anchor" href="#通过java命令执行代码的大体流程如下"></a> 通过Java命令执行代码的大体流程如下：</h4><p><img src="https://github.com/wustmz/oss/raw/main/uPic/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B.png" alt="类加载机制" /></p><p>其中loadClass的类加载过程有如下几步：</p><blockquote><p>加载→验证→准备→解析→初始化→使用→卸载</p></blockquote><ul><li>加载：在硬盘上查找并通过IO读入字节码文件，使用到类时才会加载，例如调用类的main()方法，new对象等等，在加载阶段会在内存中生成一个代表这个类的<strong>java.lang.class</strong>对象，作为方法区这个类的各种数据的访问入口</li><li>验证：校验字节码文件的正确性</li><li>准备：给类的静态变量分配内存，并赋予默认值</li><li>解析：将<strong>符号引用</strong>替换为直接引用，该阶段会把一些静态方法（符号引用，比如main()方法）替换为指向数据所存内存的指针或句柄等（直接引用），这是所谓的<strong>静态链接</strong>过程（类加载期间完成），<strong>动态链接</strong>是在程序运行期间完成的将符号引用替换为直接引用。</li><li>初始化：对类的静态变量初始化为指定的值，执行静态代码块</li></ul><p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/1.2.png" alt="详细流程" /></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 性能调优 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 架构师 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Focus and make it better</title>
+      <link href="/2021/11/18/Focus-and-make-it-better/"/>
+      <url>/2021/11/18/Focus-and-make-it-better/</url>
+      
+        <content type="html"><![CDATA[<p>If u want it，make u deserve it。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 生活随笔 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+  
+  
+</search>
