@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.loli.net/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link href="https://fonts.googleapis.com/css?family=Noto+Serif+SC|Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":3,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Docker容器中安装MySQL、Redis、Nginx、RabbitMQ、MongoDB、Elasticsearch、Logstash、Kibana，基于CenterOS7.6。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker安装分布式组件">
+<meta property="og:url" content="http://example.com/2021/11/25/Docker%E5%AE%89%E8%A3%85%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6/index.html">
+<meta property="og:site_name" content="梅小湛の博客">
+<meta property="og:description" content="Docker容器中安装MySQL、Redis、Nginx、RabbitMQ、MongoDB、Elasticsearch、Logstash、Kibana，基于CenterOS7.6。">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/Users/wustmz/Documents/redis.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/rabbitmq1.png">
+<meta property="og:image" content="http://example.com/Users/wustmz/Documents/mqlogin.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/add-user.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/add-host.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/user-admin.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/add-permission.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/es.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wustmz/oss/main/img/kibana.png">
+<meta property="article:published_time" content="2021-11-25T13:01:59.000Z">
+<meta property="article:modified_time" content="2021-11-25T14:10:47.448Z">
+<meta property="article:author" content="Steve mei">
+<meta property="article:tag" content="架构师">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/Users/wustmz/Documents/redis.jpg">
+
+<link rel="canonical" href="http://example.com/2021/11/25/Docker%E5%AE%89%E8%A3%85%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Docker安装分布式组件 | 梅小湛の博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?021eb814839f2b8fb22bbf6695467c5f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://https://github.com/wustmz" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">梅小湛の博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/25/Docker%E5%AE%89%E8%A3%85%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="Steve mei">
+      <meta itemprop="description" content="You know, living for yourself.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="梅小湛の博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker安装分布式组件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-25 21:01:59 / 修改时间：22:10:47" itemprop="dateCreated datePublished" datetime="2021-11-25T21:01:59+08:00">2021-11-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">开发工具</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Docker容器中安装MySQL、Redis、Nginx、RabbitMQ、MongoDB、Elasticsearch、Logstash、Kibana，基于CenterOS7.6。</p>
+</blockquote>
+<span id="more"></span>
+<p><strong>Docker环境安装</strong></p>
+<ul>
+<li>安装yum-utils：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y yum-utils device-mapper-persistent-data lvm2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>为yum源添加docker仓库位置：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装docker：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install docker-ce</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动docker：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start docker</span><br></pre></td></tr></table></figure>
+<hr />
+<p><strong>Java安装</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull java:8</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">** run 启动一个镜像容器</span><br><span class="line">** -d 后台运行该容器</span><br><span class="line">** -I 以交互模式运行容器，通常与 -t 同时使用</span><br><span class="line">** -t 为容器重新分配一个伪输入终端</span><br><span class="line">*/</span><br><span class="line">docker run -d -it --name java java:8</span><br></pre></td></tr></table></figure>
+<p><strong>MySQL安装</strong></p>
+<ul>
+<li>下载MySQL5.7的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull mysql:5.7</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>使用如下命令启动MySQL服务：</p>
+<pre><code>          <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 3306:3306 --name=mysql \ </span><br><span class="line">-v /data/mysql/log:/var/log/mysql \ </span><br><span class="line">-v /data/mysql/data:/var/lib/mysql \ </span><br><span class="line">-v /data/mysql/conf:/etc/mysql \ </span><br><span class="line">-e MYSQL_ROOT_PASSWORD=root  \ </span><br><span class="line">-d mysql:5.7              </span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li>
+<p>参数说明</p>
+<ul>
+<li>-p 3306:3306：将容器的3306端口映射到主机的3306端口</li>
+<li>-v /data/mysql/conf:/etc/mysql：将配置文件夹挂在到主机</li>
+<li>-v /data/mysql/log:/var/log/mysql：将日志文件夹挂载到主机</li>
+<li>-v /data/mysql/data:/var/lib/mysql/：将数据文件夹挂载到主机</li>
+<li>-e MYSQL_ROOT_PASSWORD=root：初始化root用户的密码</li>
+</ul>
+</li>
+<li>
+<p>进入运行MySQL的docker容器：</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it mysql /bin/bash</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用MySQL命令打开客户端：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -uroot -proot --default-character-set=utf8</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建mall数据库：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create database mall character set utf8</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装上传下载插件，并将document/sql/mall.sql上传到Linux服务器上：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install lrzsz</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将mall.sql文件拷贝到mysql容器的/目录下：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker cp /mydata/mall.sql mysql:/</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将sql文件导入到数据库：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use mall; source /mall.sql;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建一个reader:123456帐号并修改权限，使得任何ip都能访问：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grant all privileges on *.* to &#x27;reader&#x27; @&#x27;%&#x27; identified by &#x27;123456&#x27;;</span><br></pre></td></tr></table></figure>
+<hr />
+<p><strong>Redis安装</strong></p>
+<ul>
+<li>下载Redis5.0的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull redis:5</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用如下命令启动Redis服务：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 6379:6379 --name=redis \ </span><br><span class="line">-v /data/redis/data:/data \ </span><br><span class="line">-d redis:5 redis-server --appendonly yes</span><br></pre></td></tr></table></figure>
+<ul>
+<li>进入Redis容器使用redis-cli命令进行连接：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it redis redis-cli</span><br></pre></td></tr></table></figure>
+<p><img src="/Users/wustmz/Documents/redis.jpg" alt="redis" /></p>
+<hr />
+<p><strong>Nginx安装</strong></p>
+<ul>
+<li>下载Nginx1.10的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull nginx:1.10</span><br></pre></td></tr></table></figure>
+<ul>
+<li>先运行一次容器（为了拷贝配置文件）：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 80:80 --name=nginx \ </span><br><span class="line">-v /data/nginx/html:/usr/share/nginx/html \ </span><br><span class="line">-v /data/nginx/logs:/var/log/nginx  \ </span><br><span class="line">-d nginx:1.10</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将容器内的配置文件拷贝到指定目录：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker container cp nginx:/etc/nginx /data/nginx/</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改文件名称：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv nginx conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>终止并删除容器：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop nginx docker rm nginx</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用如下命令启动Nginx服务：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 80:80 --name=nginx \ </span><br><span class="line">-v /data/nginx/html:/usr/share/nginx/html \ </span><br><span class="line">-v /data/nginx/logs:/var/log/nginx  \ </span><br><span class="line">-v /data/nginx/conf:/etc/nginx \ </span><br><span class="line">-d nginx:1.10</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr />
+<p><strong>RabbitMQ安装</strong></p>
+<ul>
+<li>下载rabbitmq3.7.15的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull rabbitmq:3.7.15</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用如下命令启动RabbitMQ服务：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 5672:5672 -p 15672:15672 --name=rabbitmq \ -d rabbitmq:3.7.15</span><br></pre></td></tr></table></figure>
+<ul>
+<li>进入容器并开启管理功能：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it rabbitmq /bin/bash </span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/rabbitmq1.png" alt="开启管理功能" /></p>
+<ul>
+<li>开启防火墙：
+<ul>
+<li>查看firewalld状态:<code>systemctl status firewalld</code>，如果是dead状态，即防火墙未开启</li>
+<li>开启防火墙<code>systemctl start firewalld</code></li>
+<li>确认firewalld状态:<code>systemctl status firewalld</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --add-port=15672/tcp --permanent firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+<ul>
+<li>访问地址查看是否安装成功：<a target="_blank" rel="noopener" href="http://192.168.172.111:15672/">http://192.168.172.111:15672</a></li>
+</ul>
+<p><img src="/Users/wustmz/Documents/mqlogin.png" alt="mqlogin" /></p>
+<ul>
+<li>输入账号密码并登录：guest guest</li>
+<li>创建帐号并设置其角色为管理员：mall mall</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/add-user.png" alt="add-user" /></p>
+<ul>
+<li>创建一个新的虚拟host为：/mall</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/add-host.png" alt="add-host" /></p>
+<ul>
+<li>点击mall用户进入用户配置页面</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/user-admin.png" alt="user-admin" /></p>
+<ul>
+<li>给mall用户配置该虚拟host的权限</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/add-permission.png" alt="add-permission" /></p>
+<hr />
+<p><strong>Elasticsearch安装</strong></p>
+<ul>
+<li>下载Elasticsearch7.6.2的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull elasticsearch:7.6.2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改虚拟内存区域大小，否则会因为过小而无法启动:</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w vm.max_map_count=262144              </span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建文件夹</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /data/elasticsearch/config </span><br><span class="line">mkdir -p /data/elasticsearch/data </span><br><span class="line">echo &quot;http.host: 0.0.0.0&quot; &gt;/data/elasticsearch/config/elasticsearch.yml </span><br><span class="line">chmod -R 777 /data/elasticsearch/ </span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用如下命令启动Elasticsearch服务：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 9200:9200 -p 9300:9300 --name=elasticsearch \ </span><br><span class="line">-e &quot;discovery.type=single-node&quot; \ </span><br><span class="line">-e &quot;cluster.name=elasticsearch&quot; \ </span><br><span class="line">-v /data/elasticsearch/plugins:/usr/share/elasticsearch/plugins \ </span><br><span class="line">-v /data/elasticsearch/data:/usr/share/elasticsearch/data \ </span><br><span class="line">-d elasticsearch:7.6.2 </span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动时会发现/usr/share/elasticsearch/data目录没有访问权限，只需要修改/data/elasticsearch/data目录的权限，再重新启动即可；</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 777 /data/elasticsearch/data/</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装中文分词器IKAnalyzer，并重新启动：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it elasticsearch /bin/bash  </span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">此命令需要在容器中运行</span> </span><br><span class="line">elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.6.2/elasticsearch-analysis-ik-7.6.2.zip </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart elasticsearch</span><br></pre></td></tr></table></figure>
+<ul>
+<li>开启防火墙：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --add-port=9200/tcp --permanent firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+<ul>
+<li>访问会返回版本信息：<a target="_blank" rel="noopener" href="http://192.168.172.111:9200/">http://192.168.172.111:9200</a></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/es.png" alt="es" /></p>
+<hr />
+<p><strong>Logstash安装</strong></p>
+<ul>
+<li>下载Logstash7.6.2的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull logstash:7.6.2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改Logstash的配置文件logstash.conf中output节点下的Elasticsearch连接地址为es:9200，配置文件地址：<code>/document/elk/logstash.conf</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">output &#123;  </span><br><span class="line">	elasticsearch &#123;    </span><br><span class="line">		hosts =&gt; &quot;es:9200&quot;    index =&gt; &quot;mall-%&#123;type&#125;-%&#123;+YYYY.MM.dd&#125;&quot;  </span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建/data/logstash目录，并将Logstash的配置文件logstash.conf拷贝到该目录；</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir /data/logstash</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用如下命令启动Logstash服务；</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=logstash -p 4560:4560 -p 4561:4561 -p 4562:4562 -p 4563:4563 \ </span><br><span class="line">--link elasticsearch:es \ </span><br><span class="line">-v /data/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf \ </span><br><span class="line">-d logstash:7.6.2 </span><br></pre></td></tr></table></figure>
+<ul>
+<li>进入容器内部，安装<code>json_lines</code>插件。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logstash-plugin install logstash-codec-json_lines</span><br></pre></td></tr></table></figure>
+<hr />
+<p><strong>Kibana安装</strong></p>
+<ul>
+<li>下载Kibana7.6.2的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull kibana:7.6.2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用如下命令启动Kibana服务：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run --name kibana -p 5601:5601 \ </span><br><span class="line">--link elasticsearch:es \ </span><br><span class="line">-e &quot;elasticsearch.hosts=http://es:9200&quot; \ </span><br><span class="line">-d kibana:7.6.2</span><br></pre></td></tr></table></figure>
+<p>开启防火墙：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --add-port=5601/tcp --permanent firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+<ul>
+<li>访问地址进行测试：<a target="_blank" rel="noopener" href="http://192.168.172.111:5601/">http://192.172.3.111:5601</a></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/wustmz/oss/main/img/kibana.png" alt="kibana" /></p>
+<hr />
+<p><strong>MongoDB安装</strong></p>
+<ul>
+<li>下载MongoDB4.2.5的docker镜像：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull mongo:4.2.5</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用docker命令启动：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 27017:27017 --name mongo \ -v /mydata/mongo/db:/data/db \ -d mongo:4.2.5</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E5%B8%88/" rel="tag"># 架构师</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/24/Tomcat%E5%A4%84%E7%90%86%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/" rel="prev" title="01.Tomcat处理请求过程">
+      <i class="fa fa-chevron-left"></i> 01.Tomcat处理请求过程
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Steve mei"
+      src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">Steve mei</p>
+  <div class="site-description" itemprop="description">You know, living for yourself.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wustmz" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wustmz" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mzlovestudy@gmail.com" title="E-Mail → mailto:mzlovestudy@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve mei</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
