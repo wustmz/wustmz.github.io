@@ -12,7 +12,7 @@ tags:
 
 <!-- more -->
 
-**Docker环境安装**
+**1.Docker环境安装**
 
 - 安装yum-utils：
 
@@ -35,12 +35,12 @@ yum install docker-ce
 - 启动docker：
 
 ```shell
-		systemctl start docker
+systemctl start docker
 ```
 
 ---
 
-**Java安装**
+**2.Java安装**
 
 ```shell
 docker pull java:8
@@ -58,7 +58,7 @@ docker run -d -it --name java java:8
 
 
 
-**MySQL安装**
+**3.MySQL安装**
 
 - 下载MySQL5.7的docker镜像：
 
@@ -68,14 +68,14 @@ docker pull mysql:5.7
 
 - 使用如下命令启动MySQL服务：
 
-            ```shell
-            docker run -p 3306:3306 --name=mysql \ 
-            -v /data/mysql/log:/var/log/mysql \ 
-            -v /data/mysql/data:/var/lib/mysql \ 
-            -v /data/mysql/conf:/etc/mysql \ 
-            -e MYSQL_ROOT_PASSWORD=root  \ 
-            -d mysql:5.7           
-            ```
+```shell
+docker run -p 3306:3306 --name=mysql \
+-v /data/mysql/log:/var/log/mysql \
+-v /data/mysql/data:/var/lib/mysql \
+-v /data/mysql/conf:/etc/mysql \
+-e MYSQL_ROOT_PASSWORD=root  \
+-d mysql:5.7
+```
 
 - 参数说明
   - -p 3306:3306：将容器的3306端口映射到主机的3306端口
@@ -83,7 +83,6 @@ docker pull mysql:5.7
   - -v /data/mysql/log:/var/log/mysql：将日志文件夹挂载到主机
   - -v /data/mysql/data:/var/lib/mysql/：将数据文件夹挂载到主机
   - -e MYSQL_ROOT_PASSWORD=root：初始化root用户的密码
-
 - 进入运行MySQL的docker容器：
 
 ```shell
@@ -128,7 +127,7 @@ grant all privileges on *.* to 'reader' @'%' identified by '123456';
 
 ---
 
-**Redis安装**
+**4.Redis安装**
 
 - 下载Redis5.0的docker镜像：
 
@@ -139,8 +138,8 @@ docker pull redis:5
 - 使用如下命令启动Redis服务：
 
 ```shell
-docker run -p 6379:6379 --name=redis \ 
--v /data/redis/data:/data \ 
+docker run -p 6379:6379 --name=redis \
+-v /data/redis/data:/data \
 -d redis:5 redis-server --appendonly yes
 ```
 
@@ -154,7 +153,7 @@ docker exec -it redis redis-cli
 
 ---
 
-**Nginx安装**
+**5.Nginx安装**
 
 - 下载Nginx1.10的docker镜像：
 
@@ -165,9 +164,9 @@ docker pull nginx:1.10
 - 先运行一次容器（为了拷贝配置文件）：
 
 ```shell
-docker run -p 80:80 --name=nginx \ 
--v /data/nginx/html:/usr/share/nginx/html \ 
--v /data/nginx/logs:/var/log/nginx  \ 
+docker run -p 80:80 --name=nginx \
+-v /data/nginx/html:/usr/share/nginx/html \
+-v /data/nginx/logs:/var/log/nginx  \
 -d nginx:1.10
 ```
 
@@ -192,17 +191,17 @@ docker stop nginx docker rm nginx
 - 使用如下命令启动Nginx服务：
 
 ```shell
-docker run -p 80:80 --name=nginx \ 
--v /data/nginx/html:/usr/share/nginx/html \ 
--v /data/nginx/logs:/var/log/nginx  \ 
--v /data/nginx/conf:/etc/nginx \ 
+docker run -p 80:80 --name=nginx \
+-v /data/nginx/html:/usr/share/nginx/html \
+-v /data/nginx/logs:/var/log/nginx  \
+-v /data/nginx/conf:/etc/nginx \
 -d nginx:1.10
 
 ```
 
 ---
 
-**RabbitMQ安装**
+**6.RabbitMQ安装**
 
 - 下载rabbitmq3.7.15的docker镜像：
 
@@ -265,7 +264,7 @@ firewall-cmd --zone=public --add-port=15672/tcp --permanent firewall-cmd --reloa
 
 
 
-**Elasticsearch安装**
+**7.Elasticsearch安装**
 
 - 下载Elasticsearch7.6.2的docker镜像：
 
@@ -291,11 +290,11 @@ chmod -R 777 /data/elasticsearch/
 - 使用如下命令启动Elasticsearch服务：
 
 ```shell
-docker run -p 9200:9200 -p 9300:9300 --name elasticsearch \ 
--e "discovery.type=single-node" \ 
+docker run -p 9200:9200 -p 9300:9300 --name elasticsearch \
+-e "discovery.type=single-node" \
 -e "cluster.name=elasticsearch" \ 
--v /data/elasticsearch/plugins:/usr/share/elasticsearch/plugins \ 
--v /data/elasticsearch/data:/usr/share/elasticsearch/data \ 
+-v /data/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
+-v /data/elasticsearch/data:/usr/share/elasticsearch/data \
 -d elasticsearch:7.6.2 
 ```
 
@@ -353,7 +352,7 @@ firewall-cmd --zone=public --add-port=9200/tcp --permanent firewall-cmd --reload
 
 ---
 
-**Logstash安装**
+**8.Logstash安装**
 
 - 下载Logstash7.6.2的docker镜像：
 
@@ -412,7 +411,7 @@ logstash-plugin install logstash-codec-json_lines
 
 ---
 
-**Kibana安装**
+**9.Kibana安装**
 
 - 下载Kibana7.6.2的docker镜像：
 
@@ -447,7 +446,7 @@ firewall-cmd --reload
 
 ---
 
-**MongoDB安装**
+**10.MongoDB安装**
 
 - 下载MongoDB4.2.5的docker镜像：
 
@@ -462,5 +461,3 @@ docker run -p 27017:27017 --name mongo \
 -v /data/mongo/db:/data/db \
 -d mongo:4.2.5
 ```
-
-# 
