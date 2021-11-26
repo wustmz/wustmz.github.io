@@ -68,14 +68,14 @@ docker pull mysql:5.7
 
 - 使用如下命令启动MySQL服务：
 
-                ```shell
-                docker run -p 3306:3306 --name=mysql \ 
-                -v /data/mysql/log:/var/log/mysql \ 
-                -v /data/mysql/data:/var/lib/mysql \ 
-                -v /data/mysql/conf:/etc/mysql \ 
-                -e MYSQL_ROOT_PASSWORD=root  \ 
-                -d mysql:5.7              
-                ```
+            ```shell
+            docker run -p 3306:3306 --name=mysql \ 
+            -v /data/mysql/log:/var/log/mysql \ 
+            -v /data/mysql/data:/var/lib/mysql \ 
+            -v /data/mysql/conf:/etc/mysql \ 
+            -e MYSQL_ROOT_PASSWORD=root  \ 
+            -d mysql:5.7           
+            ```
 
 - 参数说明
   - -p 3306:3306：将容器的3306端口映射到主机的3306端口
@@ -229,9 +229,11 @@ rabbitmq-plugins enable rabbitmq_management
 ![开启管理功能](https://raw.githubusercontent.com/wustmz/oss/main/img/rabbitmq1.png)
 
 - 开启防火墙：
+  - 查看开启端口列表`firewall-cmd --list-ports`
   - 查看firewalld状态:`systemctl status firewalld`，如果是dead状态，即防火墙未开启
   - 开启防火墙`systemctl start firewalld`
   - 确认firewalld状态:`systemctl status firewalld`
+  
 
 
 ```shell
@@ -289,7 +291,7 @@ chmod -R 777 /data/elasticsearch/
 - 使用如下命令启动Elasticsearch服务：
 
 ```shell
-docker run -p 9200:9200 -p 9300:9300 --name=elasticsearch \ 
+docker run -p 9200:9200 -p 9300:9300 --name elasticsearch \ 
 -e "discovery.type=single-node" \ 
 -e "cluster.name=elasticsearch" \ 
 -v /data/elasticsearch/plugins:/usr/share/elasticsearch/plugins \ 
@@ -297,10 +299,30 @@ docker run -p 9200:9200 -p 9300:9300 --name=elasticsearch \
 -d elasticsearch:7.6.2 
 ```
 
-- 启动时会发现/usr/share/elasticsearch/data目录没有访问权限，只需要修改/data/elasticsearch/data目录的权限，再重新启动即可；
+- 启动时会发现报错如下
 
 ```shell
-chmod 777 /data/elasticsearch/data/
+docker: Error response from daemon: driver failed programming external connectivity on endpoint elasticsearch (b4ed5b4df7d4d6c9847f111162ffb9bd34cd2fc3cd11fe047a72e3ca1175a0fb):  (iptables failed: iptables --wait -t nat -A DOCKER -p tcp -d 0/0 --dport 9300 -j DNAT --to-destination 172.17.0.6:9300 ! -i docker0: iptables: No chain/target/match by that name.
+ (exit status 1)).
+```
+
+- 通过[Stack Overflow](https://stackoverflow.com/questions/31667160/running-docker-container-iptables-no-chain-target-match-by-that-name)解决报错后重启docker
+
+```shell
+iptables -t filter -F
+iptables -t filter -X
+```
+
+```
+systemctl restart docker
+```
+
+- 使用上述命令重启es，`docker ps`查看进程，有如下信息说明启动成功
+
+```shell
+[root@root elasticsearch]# docker ps
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS         PORTS                                                                                  NAMES
+743f299c8c90   elasticsearch:7.6.2   "/usr/local/bin/dock…"   7 seconds ago   Up 5 seconds   0.0.0.0:9200->9200/tcp, :::9200->9200/tcp, 0.0.0.0:9300->9300/tcp, :::9300->9300/tcp   elasticsearch
 ```
 
 - 安装中文分词器IKAnalyzer，并重新启动：
@@ -339,32 +361,50 @@ firewall-cmd --zone=public --add-port=9200/tcp --permanent firewall-cmd --reload
 docker pull logstash:7.6.2
 ```
 
-- 修改Logstash的配置文件logstash.conf中output节点下的Elasticsearch连接地址为es:9200，配置文件地址：`/document/elk/logstash.conf`
-
-```shell
-output {  
-	elasticsearch {    
-		hosts => "es:9200"    index => "mall-%{type}-%{+YYYY.MM.dd}"  
-	} 
-}
-```
-
-- 创建/data/logstash目录，并将Logstash的配置文件logstash.conf拷贝到该目录；
+- 创建/data/logstash目录
 
 ```shell
 mkdir /data/logstash
 ```
 
+- 创建配置文件logstash.conf在该目录
+
+```shell
+input {
+  file {
+    #标签
+    type => "systemlog-localhost"
+    #采集点
+    path => "/var/log/messages"
+    #开始收集点
+    start_position => "beginning"
+    #扫描间隔时间，默认是1s，建议5s
+    stat_interval => "5"
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => "es:9200"
+    index => "logstash-system-localhost-%{+YYYY.MM.dd}"
+ }
+}
+```
+
 - 使用如下命令启动Logstash服务；
 
 ```shell
-docker run --name=logstash -p 4560:4560 -p 4561:4561 -p 4562:4562 -p 4563:4563 \ 
---link elasticsearch:es \ 
--v /data/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf \ 
--d logstash:7.6.2 
+docker run -p 4560:4560 -p 4561:4561 -p 4562:4562 -p 4563:4563 --name logstash \
+--link elasticsearch:es \
+-v /data/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf \
+-d logstash:7.6.2
 ```
 
-- 进入容器内部，安装`json_lines`插件。
+- 进入容器内部，安装`json_lines`插件
+
+```shell
+docker exec -it logstash /bin/bash 
+```
 
 ```shell
 logstash-plugin install logstash-codec-json_lines
@@ -383,19 +423,25 @@ docker pull kibana:7.6.2
 - 使用如下命令启动Kibana服务：
 
 ```shell
-docker run --name kibana -p 5601:5601 \ 
---link elasticsearch:es \ 
--e "elasticsearch.hosts=http://es:9200" \ 
+docker run --name kibana -p 5601:5601 \
+--link elasticsearch:es \
+-e "elasticsearch.hosts=http://es:9200" \
 -d kibana:7.6.2
 ```
 
 开启防火墙：
 
 ```shell
-firewall-cmd --zone=public --add-port=5601/tcp --permanent firewall-cmd --reload
+firewall-cmd --zone=public --add-port=5601/tcp --permanent
 ```
 
-- 访问地址进行测试：[http://192.172.3.111:5601](http://192.168.172.111:5601/)
+重启防火墙：
+
+```shell
+firewall-cmd --reload
+```
+
+- 访问地址进行测试：[http://192.168.172.111:5601](http://192.168.172.111:5601/)
 
 ![kibana](https://raw.githubusercontent.com/wustmz/oss/main/img/kibana.png)
 
@@ -412,6 +458,9 @@ docker pull mongo:4.2.5
 - 使用docker命令启动：
 
 ```shell
-docker run -p 27017:27017 --name mongo \ -v /mydata/mongo/db:/data/db \ -d mongo:4.2.5
+docker run -p 27017:27017 --name mongo \
+-v /data/mongo/db:/data/db \
+-d mongo:4.2.5
 ```
 
+# 
