@@ -10,6 +10,8 @@ tags:
 
 > 这篇文章是Tomcat底层原理解析系列的第一篇，详细介绍Tomcat是如何处理请求的
 
+<!-- more -->
+
 Tomcat通过**Endpoint**组件接收socket连接，接收到⼀个socket连接后会执⾏如下步骤：
 
 1. 第⼀次从socket中获取数据到InputBuffer中，BIO对应的是InternalInputBuffer，⽗类是 
