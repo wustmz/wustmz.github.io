@@ -149,7 +149,7 @@ docker run -p 6379:6379 --name=redis \
 docker exec -it redis redis-cli
 ```
 
-![redis](/Users/wustmz/Documents/redis.jpg)
+![redis](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/redis.jpg)
 
 ---
 
@@ -225,7 +225,7 @@ docker exec -it rabbitmq /bin/bash
 rabbitmq-plugins enable rabbitmq_management
 ```
 
-![开启管理功能](https://raw.githubusercontent.com/wustmz/oss/main/img/rabbitmq1.png)
+![rabbitmq1](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/rabbitmq1.png)
 
 - 开启防火墙：
   - 查看开启端口列表`firewall-cmd --list-ports`
@@ -241,28 +241,26 @@ firewall-cmd --zone=public --add-port=15672/tcp --permanent firewall-cmd --reloa
 
 - 访问地址查看是否安装成功：[http://192.168.172.111:15672](http://192.168.172.111:15672/)
 
-![mqlogin](/Users/wustmz/Documents/mqlogin.png)
+![mqlogin](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/mqlogin.png)![]()
 
 - 输入账号密码并登录：guest guest
 - 创建帐号并设置其角色为管理员：mall mall
 
-![add-user](https://raw.githubusercontent.com/wustmz/oss/main/img/add-user.png)
+![add-user](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/add-user.png)
 
 - 创建一个新的虚拟host为：/mall
 
-![add-host](https://raw.githubusercontent.com/wustmz/oss/main/img/add-host.png)
+![add-host](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/add-host.png)
 
 - 点击mall用户进入用户配置页面
 
-![user-admin](https://raw.githubusercontent.com/wustmz/oss/main/img/user-admin.png)
+![user-admin](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/user-admin.png)
 
 - 给mall用户配置该虚拟host的权限
 
-![add-permission](https://raw.githubusercontent.com/wustmz/oss/main/img/add-permission.png)
+![add-permission](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/add-permission.png)
 
 ---
-
-
 
 **7.Elasticsearch安装**
 
@@ -348,7 +346,7 @@ firewall-cmd --zone=public --add-port=9200/tcp --permanent firewall-cmd --reload
 
 - 访问会返回版本信息：[http://192.168.172.111:9200](http://192.168.172.111:9200/)
 
-![es](https://raw.githubusercontent.com/wustmz/oss/main/img/es.png)
+![es](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/es.png)
 
 ---
 
@@ -442,7 +440,7 @@ firewall-cmd --reload
 
 - 访问地址进行测试：[http://192.168.172.111:5601](http://192.168.172.111:5601/)
 
-![kibana](https://raw.githubusercontent.com/wustmz/oss/main/img/kibana.png)
+![kibana](https://wustmz.oss-cn-shenzhen.aliyuncs.com/img/kibana.png)
 
 ---
 
