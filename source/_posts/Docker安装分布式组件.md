@@ -8,7 +8,7 @@ tags:
 - Docker
 ---
 
-> Docker容器中安装MySQL、Redis、Nginx、RabbitMQ、MongoDB、Elasticsearch、Logstash、Kibana，基于CenterOS7.6。
+> Docker容器中安装MySQL、Redis、Nginx、RabbitMQ、MongoDB、Elasticsearch、Logstash、Kibana，基于CentOS7.6。
 
 <!-- more -->
 
