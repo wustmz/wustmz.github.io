@@ -199,6 +199,80 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/18/Focus-and-make-it-better/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="Steve mei">
+      <meta itemprop="description" content="You know, living for yourself.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="梅小湛の博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/18/Focus-and-make-it-better/" class="post-title-link" itemprop="url">Focus and make it better</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-18 22:23:47" itemprop="dateCreated datePublished" datetime="2021-11-18T22:23:47+08:00">2021-11-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-27 10:19:23" itemprop="dateModified" datetime="2021-11-27T10:19:23+08:00">2021-11-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index"><span itemprop="name">生活随笔</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>If u want it，make u deserve it。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/25/Docker%E5%AE%89%E8%A3%85%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -305,10 +379,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-11-24 21:08:48 / 修改时间：22:11:59" itemprop="dateCreated datePublished" datetime="2021-11-24T21:08:48+08:00">2021-11-24</time>
+              <time title="创建时间：2021-11-24 21:08:48" itemprop="dateCreated datePublished" datetime="2021-11-24T21:08:48+08:00">2021-11-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-27 10:21:32" itemprop="dateModified" datetime="2021-11-27T10:21:32+08:00">2021-11-27</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -333,61 +413,14 @@
           <blockquote>
 <p>这篇文章是Tomcat底层原理解析系列的第一篇，详细介绍Tomcat是如何处理请求的</p>
 </blockquote>
-<p>Tomcat通过<strong>Endpoint</strong>组件接收socket连接，接收到⼀个socket连接后会执⾏如下步骤：</p>
-<ol>
-<li>第⼀次从socket中获取数据到InputBuffer中，BIO对应的是InternalInputBuffer，⽗类是</li>
-</ol>
-<p>AbstractInputBuffer</p>
-<ol start="2">
-<li>
-<p>然后基于InputBuffer进⾏解析数据</p>
-</li>
-<li>
-<p>先解析请求⾏，把请求⽅法，请求uri，请求协议等封装到org.apache.coyote.Request对象中</p>
-</li>
-<li>
-<p>org.apache.coyote.Request中的属性都是MessageBytes类型，直接可以理解为字节类型，因为从</p>
-</li>
-</ol>
-<p>socket中获取的数据都是字节，在解析过程中不⽤直接把字节转成字符串，并且MessageBytes虽然表</p>
-<p>示字节，但是它并不会真正的存储字节，还是使⽤ByteChunk基于InputBuffer中的字节数组来进⾏标</p>
-<p>记，标记字节数组中的哪个⼀个范围表示请求⽅法，哪个⼀个范围表示请求uri等等。</p>
-<ol start="5">
-<li>
-<p>然后解析头，和解析请求⾏类似</p>
-</li>
-<li>
-<p>解析完请求头后，就基于请求头来初始化⼀些参数，⽐如Connection是keepalive是close，⽐如是否</p>
-</li>
-</ol>
-<p>有Content-length，并且对于的⻓度是多少等等，还包括当前请求在处理请求体时应该使⽤哪个</p>
-<p>InputFilter。</p>
-<ol start="7">
-<li>
-<p>然后将请求交给容器</p>
-</li>
-<li>
-<p>容器再将请求交给具体的servlet进⾏处理</p>
-</li>
-<li>
-<p>servlet在处理请求的过程中会利⽤response进⾏响应，返回数据给客户端，⼀个普通的响应过程会把</p>
-</li>
-</ol>
-<p>数据先写⼊⼀个缓冲区，当调⽤flush，或者close⽅法时会把缓冲区中的内容发送给socet，下⾯有⼀</p>
-<p>篇单独的⽂章讲解tomcat响应请求过程</p>
-<ol start="10">
-<li>
-<p>servlet处理完请求后，先会检查是否需要把响应数据发送给socket</p>
-</li>
-<li>
-<p>接着看当前请求的请求体是否处理结束，是否还有剩余数据，如果有剩余数据需要把这些数据处理掉，</p>
-</li>
-</ol>
-<p>以便能够获取到下⼀个请求的数据</p>
-<ol start="12">
-<li>然后回到第⼀步开始处理下⼀个请求</li>
-</ol>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/24/Tomcat%E5%A4%84%E7%90%86%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -538,80 +571,6 @@
             </div>
           <!--/noindex-->
         
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/18/Focus-and-make-it-better/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-      <meta itemprop="name" content="Steve mei">
-      <meta itemprop="description" content="You know, living for yourself.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="梅小湛の博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/18/Focus-and-make-it-better/" class="post-title-link" itemprop="url">Focus and make it better</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-11-18 22:23:47" itemprop="dateCreated datePublished" datetime="2021-11-18T22:23:47+08:00">2021-11-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-21 13:34:57" itemprop="dateModified" datetime="2021-11-21T13:34:57+08:00">2021-11-21</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index"><span itemprop="name">生活随笔</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>If u want it，make u deserve it。</p>
-
       
     </div>
 
